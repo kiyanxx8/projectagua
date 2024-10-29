@@ -9,4 +9,4 @@ rain_mm = 1100  # Annual rainfall in mm
 
 # Call the function and print the result
 volume_ml = rain_to_reservoir(rain_mm)
-print(f"The volume of water entering the reservoir is {volume_ml:.2f} ML.")
+print(f"The volume of water entering the reservoir is {volume_ml} ML.")
