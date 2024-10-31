@@ -1,6 +1,6 @@
 def rain_to_reservoir(Rain):
 
-    city_area = 21600000  # mi², area of zug which has 73000 inhabitants
+    city_area = 21600000  # m², area of zug which has 73000 inhabitants
     catchment_area = 6300000 # m², assumption from email
 
      # Convert rain from mm to meters for easier volume calculation (1 mm = 0.001 m)
