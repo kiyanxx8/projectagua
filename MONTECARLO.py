@@ -14,7 +14,7 @@ from rainfall import rainfall_df
 
 Waterpump_capacity_intervention1 = pd.DataFrame(13870, index=[1], columns=np.arange(1, 51))  #THIS IS A DATAFRAME SHOWING THE WATERPUMP CAPACITY FOR EACH YEAR IN INTERVENTION 1
 increase_year = 2
-new_capacity = 20000
+new_capacity = 0
 Waterpump_capacity_intervention1.loc[:, increase_year:] = new_capacity
 
 Waterpump_capacity_intervention2 = pd.DataFrame(13870, index=[1], columns=np.arange(1, 51))  #THIS IS A DATAFRAME SHOWING THE WATERPUMP CAPACITY FOR EACH YEAR IN INTERVENTION 2
@@ -28,6 +28,14 @@ Cost_intervention1 = pd.DataFrame(0, index=[1], columns=np.arange(1, 51))  #THIS
 Cost_intervention2 = pd.DataFrame(0, index=[1], columns=np.arange(1, 51))  #THIS IS A DATAFRAME SHOWING THE COST FOR EACH Intervention in every YEAR IN INTERVENTION 2
 Cost_intervention3 = pd.DataFrame(0, index=[1], columns=np.arange(1, 51))  #THIS IS A DATAFRAME SHOWING THE COST FOR EACH Intervention in every YEAR IN INTERVENTION 3
 
+def find_closest_value(df, year, random_value):
+    # Get the column values for the specified year
+    values = df[year].values
+    # Find the index of the closest value in values that is less than or equal to random_value
+    closest_index = np.where(values <= random_value)[0][-1]
+    return df.index[closest_index]  # Return the population or rainfall value at the found index
+
+
 
 def monte_carlo_total_cost(iterations, years, population_df, rainamount_df, Waterpump_capacity, waterleakage, intervention_cost):
     # Storage for costs across all iterations and years
@@ -37,12 +45,20 @@ def monte_carlo_total_cost(iterations, years, population_df, rainamount_df, Wate
     # Monte Carlo simulation
     for i in range(iterations):
         # Reset water amount for each new iteration
-        water_currently = initial_water
-        
+
         for year in range(1, years + 1):
+
+            random_value_pop = np.random.rand()
+            random_value_rain = np.random.rand()
+
+            # Find the closest values in pop_df and rainfall_df for the current year
+            population = find_closest_value(population_df, year, random_value_pop)
+            rainfall = find_closest_value(rainamount_df, year, random_value_rain)
             # 1. Population and Rainfall Sampling
-            population = np.random.choice(population_df.index, p=population_df[year] / population_df[year].sum())
-            rainfall = np.random.choice(rainamount_df.index, p=rainamount_df[year] / rainamount_df[year].sum())
+            if year == 1:
+                water_currently = initial_water
+            else:
+                water_currently = water_currently2
             
             # 2. Calculate Annual Variables
             total_demand = totaldemand(population)
@@ -54,10 +70,10 @@ def monte_carlo_total_cost(iterations, years, population_df, rainamount_df, Wate
             intervention_cost = intervention_cost.at[1, year]  # Year-specific intervention cost
             
             # 3. Compute Water Balance
-            water_currently = totwater(water_currently, rainfall_volume, leakage, waterpump_capacity, total_demand)
+            water_currently2 = totwater(water_currently, rainfall_volume, leakage, waterpump_capacity, total_demand)
             
             # 4. Calculate Annual Costs
-            env_cost = costenv(water_currently)  # Environmental cost
+            env_cost = costenv(water_currently2)  # Environmental cost
             unmet_demand_cost = Cwr(waterpump_capacity, population, total_demand)  # Unmet water demand cost
             
             # 5. Sum Costs for Total Annual Cost
@@ -65,6 +81,7 @@ def monte_carlo_total_cost(iterations, years, population_df, rainamount_df, Wate
             total_costs[i, year - 1] = total_cost  # Store total cost for each year
 
     # Convert results to DataFrame for easier analysis
+
     total_costs_df = pd.DataFrame(total_costs, columns=[f'Year_{y}' for y in range(1, years + 1)])
     return total_costs_df
 
