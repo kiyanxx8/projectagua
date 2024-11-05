@@ -8,9 +8,8 @@ from Rainfall_supply import rain_to_reservoir
 from TotalCost import totalcost
 from TotalDemand import totaldemand
 from water_in_reservoir import totwater
-from intervention_cost import Cint
-from pop import pop_df
-from rainfall import rainfall_df
+from pop2 import pop_df
+from rainfall import rainfall_cdf_df
 
 Waterpump_capacity_intervention1 = pd.DataFrame(13870, index=[1], columns=np.arange(1, 51))  #THIS IS A DATAFRAME SHOWING THE WATERPUMP CAPACITY FOR EACH YEAR IN INTERVENTION 1
 increase_year = 2
@@ -37,54 +36,46 @@ def find_closest_value(df, year, random_value):
 
 
 
-def monte_carlo_total_cost(iterations, years, population_df, rainamount_df, Waterpump_capacity, waterleakage, intervention_cost):
-    # Storage for costs across all iterations and years
-    # Storage for costs across all iterations and years
+def monte_carlo_total_cost(iterations, years, population_df, rainamount_df, Waterpump_capacity, waterleakage, intervention_cost_df):
     initial_water = 144000  # ML, initial water reserve
     total_costs = np.zeros((iterations, years))  # Store total costs for each iteration and year
-    # Monte Carlo simulation
+
     for i in range(iterations):
-        # Reset water amount for each new iteration
-
         for year in range(1, years + 1):
-
             random_value_pop = np.random.rand()
             random_value_rain = np.random.rand()
 
             # Find the closest values in pop_df and rainfall_df for the current year
             population = find_closest_value(population_df, year, random_value_pop)
             rainfall = find_closest_value(rainamount_df, year, random_value_rain)
-            # 1. Population and Rainfall Sampling
+            print(population, rainfall)
             if year == 1:
                 water_currently = initial_water
             else:
                 water_currently = water_currently2
             
-            # 2. Calculate Annual Variables
+            # Calculate Annual Variables
             total_demand = totaldemand(population)
             rainfall_volume = rain_to_reservoir(rainfall)
             
             # Retrieve year-specific values from the DataFrames
-            leakage = waterleakage.at[1, year]  # Year-specific leakage
-            waterpump_capacity = Waterpump_capacity.at[1, year]  # Year-specific pump capacity
-            intervention_cost = intervention_cost.at[1, year]  # Year-specific intervention cost
+            leakage = waterleakage.at[1, year]
+            waterpump_capacity = Waterpump_capacity.at[1, year]
+            intervention_cost = intervention_cost_df.at[1, year]
             
-            # 3. Compute Water Balance
+            # Compute Water Balance
             water_currently2 = totwater(water_currently, rainfall_volume, leakage, waterpump_capacity, total_demand)
             
-            # 4. Calculate Annual Costs
-            env_cost = costenv(water_currently2)  # Environmental cost
-            unmet_demand_cost = Cwr(waterpump_capacity, population, total_demand)  # Unmet water demand cost
+            # Calculate Annual Costs
+            env_cost = costenv(water_currently2)
+            unmet_demand_cost = Cwr(waterpump_capacity, population, total_demand)
             
-            # 5. Sum Costs for Total Annual Cost
+            # Sum Costs for Total Annual Cost
             total_cost = totalcost(intervention_cost, unmet_demand_cost, env_cost)
-            total_costs[i, year - 1] = total_cost  # Store total cost for each year
-
-    # Convert results to DataFrame for easier analysis
+            total_costs[i, year - 1] = total_cost
 
     total_costs_df = pd.DataFrame(total_costs, columns=[f'Year_{y}' for y in range(1, years + 1)])
     return total_costs_df
 
-total_costs_example = monte_carlo_total_cost(5, 50, pop_df, rainfall_df, Waterpump_capacity_intervention1, Waterleakage_intervention1, Cost_intervention1)
+total_costs_example = monte_carlo_total_cost(5, 50, pop_df, rainfall_cdf_df, Waterpump_capacity_intervention1, Waterleakage_intervention1, Cost_intervention1)
 print(total_costs_example.head())
-#tools.display_dataframe_to_user(name="Monte Carlo Total Costs Example", dataframe=total_costs_example)
