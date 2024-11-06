@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from scipy.stats import norm
 
 # Beispielhafte historische Daten laden (ersetzen Sie dies durch echte Daten, wenn vorhanden)
-historical_data = pd.read_csv('C:/Users/kizal/Everything/ETH_local/Semester1/infra_Planning/projectagua/projectagua/rainfall.csv', delimiter=';')  # Beispieldatei, ersetzen Sie den Dateinamen
+historical_data = pd.read_csv('C:/Users/kizal/Everything/ETH_local/Semester1/infra_Planning/projectagua/projectagua/csvs/rainfall.csv', delimiter=';')  # Beispieldatei, ersetzen Sie den Dateinamen
 
 # Berechnung des durchschnittlichen jährlichen Niederschlags und der Standardabweichung der letzten 100 Jahre
 mean_rainfall_100yrs = historical_data['Annual rainfall (mm) '].tail(100).mean()
@@ -52,7 +52,7 @@ for year in years_forecast:
     rainfall_cdf_df[year] = norm.cdf(rainfall_range, loc=mean, scale=std_dev)
 
 #print(rainfall_cdf_df)
-rainfall_cdf_df.to_csv('rainfall_cdf_df.csv')
+#rainfall_cdf_df.to_csv('rainfall_cdf_df.csv')
 
 # Darstellung der Ergebnisse als Heatmap
 """plt.figure(figsize=(12, 8))
