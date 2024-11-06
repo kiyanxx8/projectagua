@@ -32,15 +32,15 @@ for year in years:
     pop_df[year] = norm.cdf(pop_range, loc=mean, scale=std_dev)
 
 # Display the first few rows of the DataFrame
-print(pop_df)
-pop_df.to_csv('pop_df_cumulative.csv')
+#print(pop_df)
+#pop_df.to_csv('pop_df_cumulative.csv')
 
 # Plotting the results as a heatmap
-plt.figure(figsize=(10, 6))
+"""plt.figure(figsize=(10, 6))
 plt.imshow(pop_df, aspect='auto', cmap='viridis', origin='lower',
            extent=[years.min(), years.max(), pop_range.min(), pop_range.max()])
 plt.colorbar(label='Cumulative Probability')
 plt.title('Cumulative Probability of Population Size Over Time with Variable Uncertainty')
 plt.xlabel('Year')
 plt.ylabel('Population Size')
-plt.show()
+plt.show()"""

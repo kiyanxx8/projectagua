@@ -29,9 +29,11 @@ for year in years:
     mean = initial_pop + growth_per_year * (year - 1)  # Mean population for this year (grows by 800 each year)
     std_dev = std_dev_pop_growth[year - 1]  # Standard deviation for the population size growth at this year
     
-    
+
     # Calculate the probability for each population size at this year
     pop_df[year] = norm.pdf(pop_range, loc=mean, scale=std_dev)
+
+
 
 # Display the first few rows of the DataFrame
 print(pop_df)
