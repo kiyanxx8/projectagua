@@ -5,7 +5,7 @@ from scipy.stats import norm
 
 # Define assumptions
 initial_pop = 75000  # Starting population
-growth_per_year = 800  # Population growth per year
+growth_per_year = 1041  # Population growth per year
 years = np.arange(1, 51)  # Years from 1 to 50
 
 pop_range = np.linspace(75000, 150000, 10000)  # Population sizes from 75,000 to 120,000 in 10000 steps

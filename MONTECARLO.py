@@ -9,7 +9,6 @@ print(sys.path)
 
 from environmental_cost import costenv
 from inadequate_water_cost import Cwr
-from Rainfall_supply import rain_to_reservoir
 from TotalCost import totalcost
 from TotalDemand import totaldemand
 from water_in_reservoir import totwater
@@ -29,7 +28,10 @@ def find_closest_value(df, year, random_value):
     return df.index[closest_index]  # Return the population or rainfall value at the found index
 
 def monte_carlo_total_cost(iterations, years, population_df, rainamount_df, Waterpump_capacity, waterleakage, intervention_cost_df, catchment_area):
+
     initial_water = 144000  # ML, initial water reserve
+    water_min_constraint = 50000  # ML
+
 
     total_costs = np.zeros((iterations, years))
     intervention_costs = np.zeros((iterations, years))
@@ -58,7 +60,7 @@ def monte_carlo_total_cost(iterations, years, population_df, rainamount_df, Wate
             
             # Calculate Annual Variables
             total_demand = totaldemand(population)
-            rainfall_volume = rainfall * 0.000001 * catchment_area.at[1, year]
+            rainfall_volume = rainfall * 0.000001 * catchment_area.at[1, year] * 0.8 #0.000001 to convert to ML , 0.8 to account for evaporation
             #print("year:" + str(year) + ", totdemand:" + str(total_demand) + ", " + str(population))
             # Retrieve year-specific values from the DataFrames
             leakage = waterleakage.at[1, year]
@@ -67,6 +69,8 @@ def monte_carlo_total_cost(iterations, years, population_df, rainamount_df, Wate
 
             # Compute Water Balance
             water_currently2 = totwater(water_currently, rainfall_volume, leakage, waterpump_capacity, total_demand)
+            if water_currently2 < water_min_constraint:
+                waterpump_capacity = 0
             
             rainfall_yearly[i, year - 1] = rainfall
             population_yearly[i, year - 1] = population

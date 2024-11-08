@@ -51,7 +51,7 @@ for year in years_forecast:
     # Kumulative Wahrscheinlichkeit berechnen, dass der Niederschlag diesen Wert nicht überschreitet
     rainfall_cdf_df[year] = norm.cdf(rainfall_range, loc=mean, scale=std_dev)
 
-#print(rainfall_cdf_df)
+
 #rainfall_cdf_df.to_csv('rainfall_cdf_df.csv')
 
 # Darstellung der Ergebnisse als Heatmap
