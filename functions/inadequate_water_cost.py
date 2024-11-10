@@ -1,7 +1,7 @@
 def Cwr(waterpump, Inhabitants, totaldemand):
 
-    Wpriv = 0.09  # ML/person/year, water demand for private use per person
-    Wrest = 0.06  # ML/person/year, water demand for industry per person
+    Wpriv = 0.089  # ML/person/year, water demand for private use per person
+    Wrest = 0.049  # ML/person/year, water demand for industry per person
 
     Cpriv = 730 # CHF/ person/year Private Cost per person
     Crest = 199 # CHF/ person/year Rest Cost per person

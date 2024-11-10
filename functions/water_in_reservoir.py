@@ -1,5 +1,5 @@
 def totwater(water_currently, rainfall, leakage, waterpump, totaldemand):
-    water_min_constraint = 50000  # ML
+    water_min_constraint = 72000  # ML
 
     if water_currently <= water_min_constraint:
         return water_currently + rainfall - leakage

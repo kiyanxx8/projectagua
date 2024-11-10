@@ -30,7 +30,7 @@ def find_closest_value(df, year, random_value):
 def monte_carlo_total_cost(iterations, years, population_df, rainamount_df, Waterpump_capacity, waterleakage, intervention_cost_df, catchment_area):
 
     initial_water = 144000  # ML, initial water reserve
-    water_min_constraint = 50000  # ML
+    water_min_constraint = 72000  # ML
 
 
     total_costs = np.zeros((iterations, years))
@@ -42,6 +42,7 @@ def monte_carlo_total_cost(iterations, years, population_df, rainamount_df, Wate
     population_yearly = np.zeros((iterations, years))
     total_demand_yearly = np.zeros((iterations, years))
     water_currently_yearly = np.zeros((iterations, years))
+    leakage_yearly = np.zeros((iterations, years))
 
     for i in range(iterations):
         random_value_pop = np.random.rand()
@@ -76,6 +77,7 @@ def monte_carlo_total_cost(iterations, years, population_df, rainamount_df, Wate
             population_yearly[i, year - 1] = population
             total_demand_yearly[i, year - 1] = total_demand
             water_currently_yearly[i, year - 1] = water_currently2
+            leakage_yearly[i, year - 1] = leakage
 
             # Calculate Annual Costs
             env_cost = costenv(water_currently2)
@@ -95,12 +97,13 @@ def monte_carlo_total_cost(iterations, years, population_df, rainamount_df, Wate
     avg_population = population_yearly.mean(axis=0)
     avg_total_demand = total_demand_yearly.mean(axis=0)
     avg_water_currently = water_currently_yearly.mean(axis=0)
+    avg_leakage = leakage_yearly.mean(axis=0)
 
     total_costs_df = pd.DataFrame(total_costs, columns=[f'Year_{y}' for y in range(1, years + 1)])
     intervention_costs_df = pd.DataFrame(intervention_costs, columns=[f'Year_{y}' for y in range(1, years + 1)])
     env_costs_df = pd.DataFrame(env_costs, columns=[f'Year_{y}' for y in range(1, years + 1)])
     unmet_demand_costs_df = pd.DataFrame(unmet_demand_costs, columns=[f'Year_{y}' for y in range(1, years + 1)])
 
-    return total_costs_df, intervention_costs_df, env_costs_df, unmet_demand_costs_df, avg_rainfall, avg_population, avg_total_demand, avg_water_currently
+    return total_costs_df, intervention_costs_df, env_costs_df, unmet_demand_costs_df, avg_rainfall, avg_population, avg_total_demand, avg_water_currently, avg_leakage
 
 
