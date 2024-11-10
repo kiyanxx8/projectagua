@@ -36,20 +36,26 @@ catchment_increase_flexible = 9250000  # After flexible intervention in m^2
 
 # Define intervention-specific DataFrames for water pump capacity
 Waterpump_capacity_nothing = pd.DataFrame(waterpumpcapacity_zero, index=[1], columns=np.arange(1, 51))
+
 Waterpump_capacity_traditional = pd.DataFrame(waterpumpcapacity_zero, index=[1], columns=np.arange(1, 51))
 Waterpump_capacity_traditional.loc[:, 1:] = waterpump_increase_traditional
+
 Waterpump_capacity_stagewise = pd.DataFrame(waterpumpcapacity_zero, index=[1], columns=np.arange(1, 51))
 Waterpump_capacity_stagewise.loc[:, 25:] = waterpump_increase_stagewise1
 Waterpump_capacity_stagewise.loc[:, 33:] = waterpump_increase_stagewise2
+
 Waterpump_capacity_flexible = pd.DataFrame(waterpumpcapacity_zero, index=[1], columns=np.arange(1, 51))
 
 # Define DataFrames for catchment area
 catchment_area_nothing = pd.DataFrame(catchment_area_zero, index=[1], columns=np.arange(1, 51))
+
 catchment_area_traditional = pd.DataFrame(catchment_area_zero, index=[1], columns=np.arange(1, 51))
 catchment_area_traditional.loc[:, 1:] = catchment_area_new_traditional
+
 catchment_area_stagewise = pd.DataFrame(catchment_area_zero, index=[1], columns=np.arange(1, 51))
 catchment_area_stagewise.loc[:, 1:] = catchment_increase_stagewise1
 catchment_area_stagewise.loc[:, 20:] = catchment_increase_stagewise2
+
 catchment_area_flexible = pd.DataFrame(catchment_area_zero, index=[1], columns=np.arange(1, 51))
 catchment_area_flexible.loc[:, 1:] = catchment_increase_flexible
 
@@ -58,23 +64,31 @@ i = 50  # Number of years
 Waterleakage_nothing = pd.DataFrame([[leakage_zero + (10 * x) for x in range(i)]], index=[1], columns=np.arange(1, i + 1))
 for year in range(1, i + 1):
     Waterleakage_nothing.loc[1, year] = 10 * (year - 1)  # Set to 0 at fix_year and increase by 10 each year afte
+
 Waterleakage_traditional = Waterleakage_nothing.copy()
+
 Waterleakage_stagewise = Waterleakage_nothing.copy()
+
 Waterleakage_flexible = Waterleakage_nothing.copy()
+
 
 # Define DataFrames for intervention costs
 Cost_nothing = pd.DataFrame(0, index=[1], columns=np.arange(1, 51))
+Cost_nothing += operational_cost_waterpump_increase * Waterpump_capacity_nothing
+
 Cost_traditional = pd.DataFrame(0, index=[1], columns=np.arange(1, 51))
 Cost_traditional[1] = (cost_fixing_leakage + 
                        cost_waterpump_capacity_increase * (waterpump_increase_traditional - waterpumpcapacity_zero) + 
                        cost_catchment_area_increase * (catchment_area_new_traditional - catchment_area_zero))
 Cost_traditional += operational_cost_waterpump_increase * Waterpump_capacity_traditional
+
 Cost_stagewise = pd.DataFrame(0, index=[1], columns=np.arange(1, 51))
 Cost_stagewise[1] = cost_fixing_leakage + cost_catchment_area_increase * (catchment_increase_stagewise1 - catchment_area_zero)
 Cost_stagewise[20] = cost_catchment_area_increase * (catchment_increase_stagewise2 - catchment_increase_stagewise1)
 Cost_stagewise[25] = cost_waterpump_capacity_increase * (waterpump_increase_stagewise1 - waterpumpcapacity_zero)
 Cost_stagewise[33] = cost_waterpump_capacity_increase * (waterpump_increase_stagewise2 - waterpump_increase_stagewise1)
 Cost_stagewise += operational_cost_waterpump_increase * Waterpump_capacity_stagewise
+
 Cost_flexible = pd.DataFrame(0, index=[1], columns=np.arange(1, 51))
 Cost_flexible[1] = cost_fixing_leakage + cost_catchment_area_increase * (catchment_increase_flexible - catchment_area_zero)
 
