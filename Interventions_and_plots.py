@@ -62,14 +62,14 @@ catchment_area_flexible.loc[:, 1:] = catchment_increase_flexible
 # Define DataFrames for water leakage
 i = 50  # Number of years
 Waterleakage_nothing = pd.DataFrame([[leakage_zero + (10 * x) for x in range(i)]], index=[1], columns=np.arange(1, i + 1))
-for year in range(1, i + 1):
-    Waterleakage_nothing.loc[1, year] = 10 * (year - 1)  # Set to 0 at fix_year and increase by 10 each year afte
 
 Waterleakage_traditional = Waterleakage_nothing.copy()
+for year in range(1, i + 1):
+    Waterleakage_traditional.loc[1, year] = 10 * (year - 1)  # Set to 0 at fix_year and increase by 10 each year
 
-Waterleakage_stagewise = Waterleakage_nothing.copy()
+Waterleakage_stagewise = Waterleakage_traditional.copy()
 
-Waterleakage_flexible = Waterleakage_nothing.copy()
+Waterleakage_flexible = Waterleakage_traditional.copy()
 
 
 # Define DataFrames for intervention costs
