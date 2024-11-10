@@ -6,6 +6,8 @@ from MONTECARLO import monte_carlo_total_cost  # Import the monte_carlo function
 from uncertainties.pop import pop_df
 from uncertainties.rainfall import rainfall_cdf_df
 
+### Do chasch ahfange
+
 # Set up parameters
 years = np.arange(1, 51)
 discount_rate = 0.03
@@ -54,6 +56,8 @@ catchment_area_flexible.loc[:, 1:] = catchment_increase_flexible
 # Define DataFrames for water leakage
 i = 50  # Number of years
 Waterleakage_nothing = pd.DataFrame([[leakage_zero + (10 * x) for x in range(i)]], index=[1], columns=np.arange(1, i + 1))
+for year in range(1, i + 1):
+    Waterleakage_nothing.loc[1, year] = 10 * (year - 1)  # Set to 0 at fix_year and increase by 10 each year afte
 Waterleakage_traditional = Waterleakage_nothing.copy()
 Waterleakage_stagewise = Waterleakage_nothing.copy()
 Waterleakage_flexible = Waterleakage_nothing.copy()
@@ -80,6 +84,10 @@ def calculate_cumulative_distribution(costs_df, discount_rate):
     sorted_costs = np.sort(discounted_costs)
     cumulative_probs = np.linspace(0, 1, len(sorted_costs))
     return sorted_costs, cumulative_probs
+
+
+### Do chasch ufhöre
+
 
 # Run Monte Carlo simulations for each intervention
 total_costs1, nothing_costs1, env_costs1, unmet_demand_costs1, avg_rainfall1, avg_population1, avg_total_demand1, avg_water_currently1, avg_leakage_nothing = monte_carlo_total_cost(
