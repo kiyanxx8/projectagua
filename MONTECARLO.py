@@ -31,7 +31,9 @@ def find_closest_value(df, year, random_value):
     closest_index = 0 if len(closest_indices) == 0 else closest_indices[-1]
     return df.index[closest_index]
 
-def monte_carlo_total_cost(iterations, years, population_df, rainamount_df, waterpump_capacity, waterleakage, intervention_cost_df, catchment_area, flexible=False):
+### Do afach de montecarlo ahluege eb det alles sinn macht, vorallem de " if flexible" part wo flexibli intervention cost berechnet wird
+
+def monte_carlo_total_cost(iterations, years, population_df, rainamount_df, waterpump_capacities, waterleakage, intervention_cost_df, catchment_area, flexible=False):
     """
     Perform a Monte Carlo simulation to calculate the total cost of water management over a number of years.
     
@@ -69,7 +71,7 @@ def monte_carlo_total_cost(iterations, years, population_df, rainamount_df, wate
         
         # Copy initial catchment area and water pump capacity
         current_catchment_area = catchment_area.copy()
-        current_waterpump_capacity = waterpump_capacity.copy()
+        current_waterpump_capacity = waterpump_capacities.copy()
 
         for year in range(1, years + 1):
             # Find the closest values for population and rainfall for the current year
@@ -95,6 +97,8 @@ def monte_carlo_total_cost(iterations, years, population_df, rainamount_df, wate
             if water_currently2 < water_min_constraint:
                 waterpump_capacity = 0
 
+
+            ### de au ahluege
             # Apply flexible management strategies if enabled
             if flexible:
                 # Increase catchment area if water reserve is below minimum threshold
