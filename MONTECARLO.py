@@ -58,6 +58,7 @@ def monte_carlo_total_cost(iterations, years, population_df, rainamount_df, wate
     cost_catchment_area_increase = 50  # Cost per m^2 increase in catchment area
     cost_waterpump_capacity_increase = 100  # Cost per ML increase in water pump capacity
     operational_cost_waterpump_increase = 5  # Operational cost per ML in water pump capacity
+    discount_rate = 0.03  # Discount rate for future costs
 
     # Initialize arrays to store costs and annual values
     total_costs, intervention_costs, env_costs, unmet_demand_costs = [np.zeros((iterations, years)) for _ in range(4)] # Costs
@@ -134,10 +135,30 @@ def monte_carlo_total_cost(iterations, years, population_df, rainamount_df, wate
             env_costs[i, year - 1] = env_cost
             unmet_demand_costs[i, year - 1] = unmet_demand_cost
 
+    # Calculate present value costs for each iteration
+    present_value_costs = np.zeros(iterations)
+    for i in range(iterations):
+        for year in range(years):
+            present_value_costs[i] += total_costs[i, year] / ((1 + discount_rate) ** year)
+    
+    # Average present value cost across all iterations
+    average_present_value_cost = present_value_costs.mean()
+
     # Create DataFrames for the results
     total_costs_df = pd.DataFrame(total_costs, columns=[f'Year_{y}' for y in range(1, years + 1)])
     intervention_costs_df = pd.DataFrame(intervention_costs, columns=[f'Year_{y}' for y in range(1, years + 1)])
     env_costs_df = pd.DataFrame(env_costs, columns=[f'Year_{y}' for y in range(1, years + 1)])
     unmet_demand_costs_df = pd.DataFrame(unmet_demand_costs, columns=[f'Year_{y}' for y in range(1, years + 1)])
 
-    return total_costs_df, intervention_costs_df, env_costs_df, unmet_demand_costs_df, rainfall_yearly.mean(axis=0), population_yearly.mean(axis=0), total_demand_yearly.mean(axis=0), water_currently_yearly.mean(axis=0), leakage_yearly.mean(axis=0)
+    return (
+        total_costs_df,
+        intervention_costs_df,
+        env_costs_df,
+        unmet_demand_costs_df,
+        rainfall_yearly.mean(axis=0),
+        population_yearly.mean(axis=0),
+        total_demand_yearly.mean(axis=0),
+        water_currently_yearly.mean(axis=0),
+        leakage_yearly.mean(axis=0),
+        average_present_value_cost  # New return value for average present value of total cost
+    )
