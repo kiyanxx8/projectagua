@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -77,7 +78,7 @@ Cost_nothing = pd.DataFrame(0, index=[1], columns=np.arange(1, 51))
 Cost_nothing += operational_cost_waterpump_increase * Waterpump_capacity_nothing
 
 Cost_robust = pd.DataFrame(0, index=[1], columns=np.arange(1, 51))
-Cost_robust[1] = (cost_fixing_leakage + 
+Cost_robust[10] = (cost_fixing_leakage + 
                        cost_waterpump_capacity_increase * (waterpump_increase_robust - waterpumpcapacity_zero) + 
                        cost_catchment_area_increase * (catchment_area_new_robust - catchment_area_zero))
 Cost_robust += operational_cost_waterpump_increase * Waterpump_capacity_robust
@@ -118,7 +119,12 @@ total_costs4, intervention_costs4, env_costs4, unmet_demand_costs4, _, _, _, avg
 )
 
 # Generate plots and save to PDF
-with PdfPages('all_interventions_costs.pdf') as pdf:
+
+# Hole den Namen der aktuellen Datei (ohne den Pfad) und ändere die Endung auf '.pdf'
+pdf_filename = os.path.splitext(os.path.basename(__file__))[0] + '.pdf'
+
+# Generiere das PDF mit dem erstellten Dateinamen
+with PdfPages(pdf_filename) as pdf:
     plt.figure(figsize=(10, 6))
     for i, (cost_df, label) in enumerate(zip([total_costs1, total_costs2, total_costs3, total_costs4], 
                                             ['Zero-Case', 'robust', 'Stagewise', 'Flexible'])):

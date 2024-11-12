@@ -1,11 +1,21 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import os
 import sys
 
 # Add paths to import custom functions
-sys.path.insert(0, r'C:/Users/kizal/Everything/ETH_local/Semester1/infra_Planning/projectagua/projectagua/functions')
-sys.path.insert(0, r'C:/Users/kizal/Everything/ETH_local/Semester1/infra_Planning/projectagua/projectagua/uncertainties')
+#sys.path.insert(0, r'C:/Users/kizal/Everything/ETH_local/Semester1/infra_Planning/projectagua/projectagua/functions')
+#sys.path.insert(0, r'C:/Users/kizal/Everything/ETH_local/Semester1/infra_Planning/projectagua/projectagua/uncertainties')
+
+
+
+# Erhalte den aktuellen Pfad der Python-Datei (wo die Datei liegt)
+base_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Füge relative Pfade hinzu
+sys.path.insert(0, os.path.join(base_dir, 'functions'))
+sys.path.insert(0, os.path.join(base_dir, 'uncertainties'))
 
 # Import custom cost and demand functions
 from environmental_cost import costenv
