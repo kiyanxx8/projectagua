@@ -6,7 +6,6 @@ from MONTECARLO import monte_carlo_total_cost  # Import the monte_carlo function
 from uncertainties.pop import pop_df
 from uncertainties.rainfall import rainfall_cdf_df
 
-### Do chasch ahfange
 
 # Set up parameters
 years = np.arange(1, 51)
@@ -14,50 +13,53 @@ discount_rate = 0.03
 
 # Initial conditions
 waterpumpcapacity_zero = 13870  # Initial water pump capacity in ML/year
-leakage_zero = 730  # Initial water leakage in ML/year
+leakage_zero = 730  # Initial water leakage in ML/year, this increases by 10 ML/year
 catchment_area_zero = 6300000  # Initial catchment area in m^2
 
-# Intervention parameters
-catchment_area_new_robust = 13000000  # New catchment area after robust intervention in m^2
+# Intervention Cost parameters
 cost_catchment_area_increase = 50  # Cost of increasing catchment area in $/m^2
 cost_waterpump_capacity_increase = 100 # Cost of increasing water pump capacity in $/ML
-operational_cost_waterpump_increase = 5 # Operational cost of increasing water pump capacity in $/ML
+operational_cost_waterpump_increase = 5 # Operational cost of the water pump capacity in $/ML
 cost_fixing_leakage = 1000000  # Cost of fixing water leakage in $
 
 # Water pump capacity after interventions
-waterpump_increase_robust = 17500  # After robust intervention in ML/year
-waterpump_increase_stagewise1 = 15000  # After stagewise intervention (stage 1) in ML/year
-waterpump_increase_stagewise2 = 17500  # After stagewise intervention (stage 2) in ML/year
+waterpump_increase_robust = 17500  # Waterpump capacity after robust intervention in ML/year
+waterpump_increase_stagewise1 = 15000  # Waterpump capacity after stagewise intervention (stage 1) in ML/year
+waterpump_increase_stagewise2 = 17500  # Waterpump capacity after stagewise intervention (stage 2) in ML/year
 
-# Catchment area after stagewise interventions
-catchment_increase_stagewise1 = 9700000  # After stagewise intervention (stage 1) in m^2
-catchment_increase_stagewise2 = 11500000  # After stagewise intervention (stage 2) in m^2
-catchment_increase_flexible = 9250000  # After flexible intervention in m^2
+# Catchment area after interventions
+catchment_area_new_robust = 13000000  # New catchment area after robust intervention in m^2
+catchment_increase_stagewise1 = 9700000  # Catchmentarea after stagewise intervention (stage 1) in m^2
+catchment_increase_stagewise2 = 11500000  # Catchmentarea after stagewise intervention (stage 2) in m^2
+catchment_increase_flexible = 9250000  # Catchmentarea after flexible intervention in m^2
 
+
+# Define intervention-specific DataFrames 
 # Define intervention-specific DataFrames for water pump capacity
 Waterpump_capacity_nothing = pd.DataFrame(waterpumpcapacity_zero, index=[1], columns=np.arange(1, 51))
 
 Waterpump_capacity_robust = pd.DataFrame(waterpumpcapacity_zero, index=[1], columns=np.arange(1, 51))
-Waterpump_capacity_robust.loc[:, 1:] = waterpump_increase_robust
+Waterpump_capacity_robust.loc[:, 1:] = waterpump_increase_robust #increase to 17500 after year 1
 
 Waterpump_capacity_stagewise = pd.DataFrame(waterpumpcapacity_zero, index=[1], columns=np.arange(1, 51))
-Waterpump_capacity_stagewise.loc[:, 25:] = waterpump_increase_stagewise1 #
-Waterpump_capacity_stagewise.loc[:, 33:] = waterpump_increase_stagewise2
+Waterpump_capacity_stagewise.loc[:, 25:] = waterpump_increase_stagewise1 #increase to 15000 after year 25
+Waterpump_capacity_stagewise.loc[:, 33:] = waterpump_increase_stagewise2 #increase to 17500 after year 33
 
 Waterpump_capacity_flexible = pd.DataFrame(waterpumpcapacity_zero, index=[1], columns=np.arange(1, 51))
+
 
 # Define DataFrames for catchment area
 catchment_area_nothing = pd.DataFrame(catchment_area_zero, index=[1], columns=np.arange(1, 51))
 
 catchment_area_robust = pd.DataFrame(catchment_area_zero, index=[1], columns=np.arange(1, 51))
-catchment_area_robust.loc[:, 1:] = catchment_area_new_robust
+catchment_area_robust.loc[:, 1:] = catchment_area_new_robust #increase to 13000000 after year 1
 
 catchment_area_stagewise = pd.DataFrame(catchment_area_zero, index=[1], columns=np.arange(1, 51))
-catchment_area_stagewise.loc[:, 1:] = catchment_increase_stagewise1
-catchment_area_stagewise.loc[:, 20:] = catchment_increase_stagewise2
+catchment_area_stagewise.loc[:, 1:] = catchment_increase_stagewise1 #increase to 9700000 after year 1
+catchment_area_stagewise.loc[:, 20:] = catchment_increase_stagewise2 #increase to 11500000 after year 20
 
 catchment_area_flexible = pd.DataFrame(catchment_area_zero, index=[1], columns=np.arange(1, 51))
-catchment_area_flexible.loc[:, 1:] = catchment_increase_flexible
+catchment_area_flexible.loc[:, 1:] = catchment_increase_flexible #increase to 9250000 after year 1
 
 # Define DataFrames for water leakage
 i = 50  # Number of years
@@ -67,30 +69,32 @@ Waterleakage_robust = Waterleakage_nothing.copy()
 for year in range(1, i + 1):
     Waterleakage_robust.loc[1, year] = 10 * (year - 1)  # Set to 0 at fix_year and increase by 10 each year
 
-Waterleakage_stagewise = Waterleakage_robust.copy()
+Waterleakage_stagewise = Waterleakage_robust.copy() # Same as robust
 
-Waterleakage_flexible = Waterleakage_robust.copy()
+Waterleakage_flexible = Waterleakage_robust.copy() # Same as robust
 
 
 # Define DataFrames for intervention costs
 Cost_nothing = pd.DataFrame(0, index=[1], columns=np.arange(1, 51))
-Cost_nothing += operational_cost_waterpump_increase * Waterpump_capacity_nothing
+Cost_nothing += operational_cost_waterpump_increase * Waterpump_capacity_nothing # Operational cost of water pump capacity
 
 Cost_robust = pd.DataFrame(0, index=[1], columns=np.arange(1, 51))
 Cost_robust[1] = (cost_fixing_leakage + 
                        cost_waterpump_capacity_increase * (waterpump_increase_robust - waterpumpcapacity_zero) + 
-                       cost_catchment_area_increase * (catchment_area_new_robust - catchment_area_zero))
-Cost_robust += operational_cost_waterpump_increase * Waterpump_capacity_robust
+                       cost_catchment_area_increase * (catchment_area_new_robust - catchment_area_zero)) # Cost of robust intervention with leakage, water pump capacity and catchment area increase in year 1
+Cost_robust += operational_cost_waterpump_increase * Waterpump_capacity_robust  # Operational cost of water pump capacity
 
 Cost_stagewise = pd.DataFrame(0, index=[1], columns=np.arange(1, 51))
-Cost_stagewise[1] = cost_fixing_leakage + cost_catchment_area_increase * (catchment_increase_stagewise1 - catchment_area_zero)
-Cost_stagewise[20] = cost_catchment_area_increase * (catchment_increase_stagewise2 - catchment_increase_stagewise1)
-Cost_stagewise[25] = cost_waterpump_capacity_increase * (waterpump_increase_stagewise1 - waterpumpcapacity_zero)
-Cost_stagewise[33] = cost_waterpump_capacity_increase * (waterpump_increase_stagewise2 - waterpump_increase_stagewise1)
-Cost_stagewise += operational_cost_waterpump_increase * Waterpump_capacity_stagewise
+Cost_stagewise[1] = cost_fixing_leakage + cost_catchment_area_increase * (catchment_increase_stagewise1 - catchment_area_zero)  # Cost of stagewise intervention with leakage and catchment area increase in year 1
+Cost_stagewise[20] = cost_catchment_area_increase * (catchment_increase_stagewise2 - catchment_increase_stagewise1) # Cost of stagewise intervention with catchment area increase in year 20
+Cost_stagewise[25] = cost_waterpump_capacity_increase * (waterpump_increase_stagewise1 - waterpumpcapacity_zero) # Cost of stagewise intervention with water pump capacity increase in year 25
+Cost_stagewise[33] = cost_waterpump_capacity_increase * (waterpump_increase_stagewise2 - waterpump_increase_stagewise1) # Cost of stagewise intervention with water pump capacity increase in year 33
+Cost_stagewise += operational_cost_waterpump_increase * Waterpump_capacity_stagewise # Operational cost of water pump capacity
 
 Cost_flexible = pd.DataFrame(0, index=[1], columns=np.arange(1, 51))
-Cost_flexible[1] = cost_fixing_leakage + cost_catchment_area_increase * (catchment_increase_flexible - catchment_area_zero)
+Cost_flexible[1] = cost_fixing_leakage + cost_catchment_area_increase * (catchment_increase_flexible - catchment_area_zero) # Cost of flexible intervention with leakage and catchment area increase in year 1
+
+
 
 # Function to calculate discounted total costs
 def calculate_cumulative_distribution(costs_df, discount_rate):
@@ -100,25 +104,24 @@ def calculate_cumulative_distribution(costs_df, discount_rate):
     return sorted_costs, cumulative_probs
 
 
-### Do chasch ufhöre
-
 
 # Run Monte Carlo simulations for each intervention
 total_costs1, nothing_costs1, env_costs1, unmet_demand_costs1, avg_rainfall1, avg_population1, avg_total_demand1, avg_water_currently1, avg_leakage_nothing = monte_carlo_total_cost(
     5000, 50, pop_df, rainfall_cdf_df, Waterpump_capacity_nothing, Waterleakage_nothing, Cost_nothing, catchment_area_nothing, flexible=False
-)
+) # Run Monte Carlo simulation for the zero-case scenario
 total_costs2, intervention_costs2, env_costs2, unmet_demand_costs2, _, _, _, avg_water_currently2, avg_leakage_robust = monte_carlo_total_cost(
     5000, 50, pop_df, rainfall_cdf_df, Waterpump_capacity_robust, Waterleakage_robust, Cost_robust, catchment_area_robust, flexible=False
-)
+) # Run Monte Carlo simulation for the robust intervention
 total_costs3, intervention_costs3, env_costs3, unmet_demand_costs3, _, _, _, avg_water_currently3, avg_leakage_stagewise = monte_carlo_total_cost(
     5000, 50, pop_df, rainfall_cdf_df, Waterpump_capacity_stagewise, Waterleakage_stagewise, Cost_stagewise, catchment_area_stagewise, flexible=False
-)
+) # Run Monte Carlo simulation for the stagewise intervention
 total_costs4, intervention_costs4, env_costs4, unmet_demand_costs4, _, _, _, avg_water_currently4, avg_leakage_flexible = monte_carlo_total_cost(
     5000, 50, pop_df, rainfall_cdf_df, Waterpump_capacity_flexible, Waterleakage_flexible, Cost_flexible, catchment_area_flexible, flexible=True
-)
+) # Run Monte Carlo simulation for the flexible intervention
 
 # Generate plots and save to PDF
 with PdfPages('all_interventions_costs.pdf') as pdf:
+    # Total Cost cumulative plot
     plt.figure(figsize=(10, 6))
     for i, (cost_df, label) in enumerate(zip([total_costs1, total_costs2, total_costs3, total_costs4], 
                                             ['Zero-Case', 'robust', 'Stagewise', 'Flexible'])):

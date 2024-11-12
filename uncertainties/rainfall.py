@@ -44,7 +44,7 @@ rainfall_cdf_df = pd.DataFrame(index=rainfall_range, columns=years_forecast)
 # Kumulative Wahrscheinlichkeiten (CDF) für jede Regenmenge und jedes Prognosejahr berechnen
 for year in years_forecast:
     # Jährliche Veränderung wird auf den Durchschnittswert der letzten 100 Jahre addiert
-    mean = mean_rainfall_100yrs + mean_rainfall_change * (year - 1)
+    mean = mean_rainfall_45yrs + mean_rainfall_change * (year - 1)
     std_dev = std_dev_per_year[year - 1] * mean  # Jahr-spezifische Standardabweichung
     #print("Jahr:", year, "Mittelwert:", mean, "Standardabweichung:", std_dev)
 

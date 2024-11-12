@@ -31,7 +31,7 @@ def find_closest_value(df, year, random_value):
     closest_index = 0 if len(closest_indices) == 0 else closest_indices[-1]
     return df.index[closest_index]
 
-### Do afach de montecarlo ahluege eb det alles sinn macht, vorallem de " if flexible" part wo flexibli intervention cost berechnet wird
+
 
 def monte_carlo_total_cost(iterations, years, population_df, rainamount_df, waterpump_capacities, waterleakage, intervention_cost_df, catchment_area, flexible=False):
     """
@@ -53,16 +53,16 @@ def monte_carlo_total_cost(iterations, years, population_df, rainamount_df, wate
     """
     # Initial parameters
     initial_water = 144000  # ML, initial water reserve
-    water_min = 136800  # ML, minimum water threshold for intervention
-    water_min_constraint = 72000  # ML, critical minimum water level
-    cost_catchment_area_increase = 50  # Cost per unit increase in catchment area
-    cost_waterpump_capacity_increase = 100  # Cost per unit increase in water pump capacity
-    operational_cost_waterpump_increase = 5  # Operational cost per unit increase in water pump capacity
+    water_min = 136800  # ML, critical water amount when environmental cost is applied
+    water_min_constraint = 72000  # ML, constraint water amoutn
+    cost_catchment_area_increase = 50  # Cost per m^2 increase in catchment area
+    cost_waterpump_capacity_increase = 100  # Cost per ML increase in water pump capacity
+    operational_cost_waterpump_increase = 5  # Operational cost per ML in water pump capacity
 
     # Initialize arrays to store costs and annual values
-    total_costs, intervention_costs, env_costs, unmet_demand_costs = [np.zeros((iterations, years)) for _ in range(4)]
-    rainfall_yearly, population_yearly, total_demand_yearly = [np.zeros((iterations, years)) for _ in range(3)]
-    water_currently_yearly, leakage_yearly = [np.zeros((iterations, years)) for _ in range(2)]
+    total_costs, intervention_costs, env_costs, unmet_demand_costs = [np.zeros((iterations, years)) for _ in range(4)] # Costs
+    rainfall_yearly, population_yearly, total_demand_yearly = [np.zeros((iterations, years)) for _ in range(3)] # Annual values
+    water_currently_yearly, leakage_yearly = [np.zeros((iterations, years)) for _ in range(2)] # Annual values
 
     # Monte Carlo simulation loop
     for i in range(iterations):
@@ -92,7 +92,7 @@ def monte_carlo_total_cost(iterations, years, population_df, rainamount_df, wate
             waterpump_capacity = current_waterpump_capacity.at[1, year]
             intervention_cost = intervention_cost_df.at[1, year]
 
-            # Compute water balance for the current year
+            # Compute water amount in reservoir for the current year
             water_currently2 = totwater(water_currently, rainfall_volume, leakage, waterpump_capacity, total_demand)
 
             # if water reserve is below minimum threshold, set water pump capacity to 0
@@ -100,16 +100,16 @@ def monte_carlo_total_cost(iterations, years, population_df, rainamount_df, wate
                 waterpump_capacity = 0
 
 
-            ### de au ahluege
+            
             # Apply flexible management strategies if enabled
             if flexible:
-                # Increase catchment area if water reserve is below minimum threshold
+                # Increase catchment area if water reserve is below minimum threshold and catchment area is below 14,000,000 m^2
                 if water_currently2 <= water_min and current_catchment_area.loc[1, year] < 14000000:
-                    current_catchment_area.loc[1, year:] += 500000
+                    current_catchment_area.loc[1, year:] += 500000 # Increase catchment area by 500000 m^2
                     intervention_cost += (current_catchment_area.loc[1, year] - current_catchment_area.loc[1, year - 1]) * cost_catchment_area_increase
                 # Increase water pump capacity if current capacity is below total demand
                 if waterpump_capacity < total_demand:
-                    current_waterpump_capacity.loc[1, year:] += 2000
+                    current_waterpump_capacity.loc[1, year:] += 2000 # Increase water pump capacity by 2000 ML/year
                     intervention_cost += (cost_waterpump_capacity_increase * 1000 + operational_cost_waterpump_increase * current_waterpump_capacity.at[1, year])
                     waterpump_capacity = current_waterpump_capacity.at[1, year]
                     # if water reserve is below minimum threshold, set water pump capacity to 0
