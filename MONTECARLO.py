@@ -94,6 +94,8 @@ def monte_carlo_total_cost(iterations, years, population_df, rainamount_df, wate
 
             # Compute water balance for the current year
             water_currently2 = totwater(water_currently, rainfall_volume, leakage, waterpump_capacity, total_demand)
+
+            # if water reserve is below minimum threshold, set water pump capacity to 0
             if water_currently2 < water_min_constraint:
                 waterpump_capacity = 0
 
@@ -110,6 +112,7 @@ def monte_carlo_total_cost(iterations, years, population_df, rainamount_df, wate
                     current_waterpump_capacity.loc[1, year:] += 2000
                     intervention_cost += (cost_waterpump_capacity_increase * 1000 + operational_cost_waterpump_increase * current_waterpump_capacity.at[1, year])
                     waterpump_capacity = current_waterpump_capacity.at[1, year]
+                    # if water reserve is below minimum threshold, set water pump capacity to 0
                     if water_currently2 < water_min_constraint:
                         waterpump_capacity = 0
 
