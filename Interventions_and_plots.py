@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import os
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from MONTECARLO import monte_carlo_total_cost  # Import the monte_carlo function from the other file
@@ -120,7 +121,11 @@ total_costs4, intervention_costs4, env_costs4, unmet_demand_costs4, _, _, _, avg
 ) # Run Monte Carlo simulation for the flexible intervention
 
 # Generate plots and save to PDF
-with PdfPages('all_interventions_costs.pdf') as pdf:
+# Hole den Namen der aktuellen Datei (ohne den Pfad) und ändere die Endung auf '.pdf'
+pdf_filename = os.path.splitext(os.path.basename(__file__))[0] + '.pdf'
+
+# Generiere das PDF mit dem erstellten Dateinamen
+with PdfPages(pdf_filename) as pdf:
     # Total Cost cumulative plot
     plt.figure(figsize=(10, 6))
     for i, (cost_df, label) in enumerate(zip([total_costs1, total_costs2, total_costs3, total_costs4], 

@@ -1,10 +1,18 @@
 import numpy as np
 import pandas as pd
+import os
 import matplotlib.pyplot as plt
 from scipy.stats import norm
 
-# Beispielhafte historische Daten laden (ersetzen Sie dies durch echte Daten, wenn vorhanden)
-historical_data = pd.read_csv('C:/Users/kizal/Everything/ETH_local/Semester1/infra_Planning/projectagua/projectagua/csvs/rainfall.csv', delimiter=';')  # Beispieldatei, ersetzen Sie den Dateinamen
+# Erhalte den Pfad des aktuellen Skripts
+base_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Navigiere zum übergeordneten Verzeichnis und dann in den Ordner 'csvs'
+csv_path = os.path.join(base_dir, '..', 'csvs', 'rainfall.csv')  # '..' navigiert eine Ebene nach oben
+csv_path = os.path.abspath(csv_path)  # Wandelt den relativen Pfad in einen absoluten Pfad um
+
+# Lade die CSV-Datei
+historical_data = pd.read_csv(csv_path, delimiter=';')
 
 # Berechnung des durchschnittlichen jährlichen Niederschlags und der Standardabweichung der letzten 100 Jahre
 mean_rainfall_100yrs = historical_data['Annual rainfall (mm) '].tail(100).mean()

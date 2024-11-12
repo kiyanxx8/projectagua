@@ -6,7 +6,7 @@ from TotalDemand import totaldemand
 from inadequate_water_cost import Cwr
 from uncertainties.pop import pop_df
 from uncertainties.rainfall import rainfall_cdf_df
-from Interventions_branch1 import Waterpump_capacity_robust, Waterleakage_robust, Cost_robust, catchment_area_robust
+from Interventions_sensitivity import Waterpump_capacity_robust, Waterleakage_robust, Cost_robust, catchment_area_robust
 
 # Initial parameters
 parameters = {
@@ -26,19 +26,13 @@ def calculate_average_cost(params):
     Cpriv = params["Cpriv"]
 
     # Run Monte Carlo simulation with updated parameters
-    total_costs, _, _, _, _, _, _, _, _ = monte_carlo_total_cost(
+    total_costs, _, _, _, _, _, _, _, _, average_present_value_cost = monte_carlo_total_cost(
         100, 50, pop_df, rainfall_cdf_df,
         Waterpump_capacity_robust, Waterleakage_robust, Cost_robust, catchment_area_robust, flexible=False
     )
+    print(average_present_value_cost)
 
-    # Sum costs over the years for each iteration (sum along rows)
-    iteration_sums = total_costs.sum(axis=1)
-
-    # Calculate the mean of the summed costs across all iterations
-    average_cost = iteration_sums.mean()
-    print(f"Average Cost: {average_cost}")
-
-    return average_cost
+    return average_present_value_cost
 
 # Get base cost
 base_cost = calculate_average_cost(parameters)
