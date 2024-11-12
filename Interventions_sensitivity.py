@@ -76,7 +76,7 @@ Cost_nothing = pd.DataFrame(0, index=[1], columns=np.arange(1, 51))
 Cost_nothing += operational_cost_waterpump_increase * Waterpump_capacity_nothing
 
 Cost_robust = pd.DataFrame(0, index=[1], columns=np.arange(1, 51))
-Cost_robust[10] = (cost_fixing_leakage + 
+Cost_robust[1] = (cost_fixing_leakage + 
                        cost_waterpump_capacity_increase * (waterpump_increase_robust - waterpumpcapacity_zero) + 
                        cost_catchment_area_increase * (catchment_area_new_robust - catchment_area_zero))
 Cost_robust += operational_cost_waterpump_increase * Waterpump_capacity_robust
