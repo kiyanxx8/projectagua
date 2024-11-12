@@ -7,7 +7,7 @@ from inadequate_water_cost import Cwr
 from uncertainties.pop import pop_df
 from uncertainties.rainfall import rainfall_cdf_df
 from Interventions_sensitivity import Waterpump_capacity_robust, Waterleakage_robust, Cost_robust, catchment_area_robust
-
+from All_Parameters import water_min, water_min_constraint, Env_Cost, Wpriv, Wrest, Cpriv, Crest, cost_catchment_area_increase, cost_waterpump_capacity_increase, operational_cost_waterpump_increase
 # Initial parameters
 parameters = {
     "cost_catchment_area_increase": 50,
@@ -28,7 +28,9 @@ def calculate_average_cost(params):
     # Run Monte Carlo simulation with updated parameters
     total_costs, _, _, _, _, _, _, _, _, average_present_value_cost = monte_carlo_total_cost(
         100, 50, pop_df, rainfall_cdf_df,
-        Waterpump_capacity_robust, Waterleakage_robust, Cost_robust, catchment_area_robust, flexible=False
+        Waterpump_capacity_robust, Waterleakage_robust, Cost_robust, catchment_area_robust,
+        cost_catchment_area_increase, cost_waterpump_capacity_increase, operational_cost_waterpump_increase,
+        Wpriv, Wrest, Cpriv, Crest, water_min, water_min_constraint, Env_Cost, flexible=False
     )
     print(average_present_value_cost)
 
@@ -36,6 +38,7 @@ def calculate_average_cost(params):
 
 # Get base cost
 base_cost = calculate_average_cost(parameters)
+print(f"Base cost: {base_cost}")
 
 # Sensitivity analysis
 sensitivity_results = {}
