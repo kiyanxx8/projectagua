@@ -13,6 +13,7 @@ from inadequate_water_cost import Cwr
 from TotalCost import totalcost
 from TotalDemand import totaldemand
 from water_in_reservoir import totwater
+#from All_Parameters import water_min_constraint, water_min, cost_catchment_area_increase, cost_waterpump_capacity_increase, operational_cost_waterpump_increase
 
 def find_closest_value(df, year, random_value):
     """
@@ -33,7 +34,7 @@ def find_closest_value(df, year, random_value):
 
 
 
-def monte_carlo_total_cost(iterations, years, population_df, rainamount_df, waterpump_capacities, waterleakage, intervention_cost_df, catchment_area, flexible=False):
+def monte_carlo_total_cost(iterations, years, population_df, rainamount_df, waterpump_capacities, waterleakage, intervention_cost_df, catchment_area, cost_catchment_area_increase, cost_waterpump_capacity_increase, operational_cost_waterpump_increase, Wpriv, Wrest, Cpriv, Crest, water_min, water_min_constraint, Env_Cost, flexible=False):
     """
     Perform a Monte Carlo simulation to calculate the total cost of water management over a number of years.
     
@@ -53,11 +54,6 @@ def monte_carlo_total_cost(iterations, years, population_df, rainamount_df, wate
     """
     # Initial parameters
     initial_water = 144000  # ML, initial water reserve
-    water_min = 136800  # ML, critical water amount when environmental cost is applied
-    water_min_constraint = 72000  # ML, constraint water amoutn
-    cost_catchment_area_increase = 50  # Cost per m^2 increase in catchment area
-    cost_waterpump_capacity_increase = 100  # Cost per ML increase in water pump capacity
-    operational_cost_waterpump_increase = 5  # Operational cost per ML in water pump capacity
     discount_rate = 0.03  # Discount rate for future costs
 
     # Initialize arrays to store costs and annual values
@@ -83,7 +79,7 @@ def monte_carlo_total_cost(iterations, years, population_df, rainamount_df, wate
             water_currently = initial_water if year == 1 else water_currently2
 
             # Calculate annual total demand
-            total_demand = totaldemand(population)
+            total_demand = totaldemand(population, Wpriv, Wrest)
 
             # Calculate rainfall volume (considering evaporation)
             rainfall_volume = rainfall * 1e-6 * current_catchment_area.at[1, year] * 0.8
@@ -94,7 +90,7 @@ def monte_carlo_total_cost(iterations, years, population_df, rainamount_df, wate
             intervention_cost = intervention_cost_df.at[1, year]
 
             # Compute water amount in reservoir for the current year
-            water_currently2 = totwater(water_currently, rainfall_volume, leakage, waterpump_capacity, total_demand)
+            water_currently2 = totwater(water_currently, rainfall_volume, leakage, waterpump_capacity, total_demand, water_min_constraint)
 
             # if water reserve is below minimum threshold, set water pump capacity to 0
             if water_currently2 < water_min_constraint:
@@ -125,8 +121,8 @@ def monte_carlo_total_cost(iterations, years, population_df, rainamount_df, wate
             leakage_yearly[i, year - 1] = leakage
 
             # Calculate annual costs
-            env_cost = costenv(water_currently2)  # Environmental cost
-            unmet_demand_cost = Cwr(waterpump_capacity, population, total_demand)  # Cost of unmet demand
+            env_cost = costenv(water_currently2, water_min, Env_Cost )  # Environmental cost
+            unmet_demand_cost = Cwr(waterpump_capacity, population, total_demand, Wpriv, Wrest, Cpriv, Crest)  # Cost of unmet demand
             total_cost = totalcost(intervention_cost, unmet_demand_cost, env_cost)  # Total cost for the year
 
             # Store annual costs

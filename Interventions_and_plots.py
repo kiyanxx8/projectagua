@@ -5,7 +5,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 from MONTECARLO import monte_carlo_total_cost  # Import the monte_carlo function from the other file
 from uncertainties.pop import pop_df
 from uncertainties.rainfall import rainfall_cdf_df
-
+from All_Parameters import water_min_constraint, water_min, cost_catchment_area_increase, cost_waterpump_capacity_increase, operational_cost_waterpump_increase, Wpriv, Wrest, Cpriv, Crest, Env_Cost
 
 # Set up parameters
 years = np.arange(1, 51)
@@ -17,9 +17,6 @@ leakage_zero = 730  # Initial water leakage in ML/year, this increases by 10 ML/
 catchment_area_zero = 6300000  # Initial catchment area in m^2
 
 # Intervention Cost parameters
-cost_catchment_area_increase = 50  # Cost of increasing catchment area in $/m^2
-cost_waterpump_capacity_increase = 100 # Cost of increasing water pump capacity in $/ML
-operational_cost_waterpump_increase = 5 # Operational cost of the water pump capacity in $/ML
 cost_fixing_leakage = 1000000  # Cost of fixing water leakage in $
 
 # Water pump capacity after interventions
@@ -107,18 +104,17 @@ def calculate_cumulative_distribution(costs_df, discount_rate):
 
 # Run Monte Carlo simulations for each intervention
 total_costs1, nothing_costs1, env_costs1, unmet_demand_costs1, avg_rainfall1, avg_population1, avg_total_demand1, avg_water_currently1, avg_leakage_nothing, average_total_costs1 = monte_carlo_total_cost(
-    5000, 50, pop_df, rainfall_cdf_df, Waterpump_capacity_nothing, Waterleakage_nothing, Cost_nothing, catchment_area_nothing, flexible=False
+    5000, 50, pop_df, rainfall_cdf_df, Waterpump_capacity_nothing, Waterleakage_nothing, Cost_nothing, catchment_area_nothing, cost_catchment_area_increase, cost_waterpump_capacity_increase, operational_cost_waterpump_increase, Wpriv, Wrest, Cpriv, Crest, water_min, water_min_constraint, Env_Cost, flexible=False
 ) # Run Monte Carlo simulation for the zero-case scenario
 total_costs2, intervention_costs2, env_costs2, unmet_demand_costs2, _, _, _, avg_water_currently2, avg_leakage_robust , average_total_costs2 = monte_carlo_total_cost(
-    5000, 50, pop_df, rainfall_cdf_df, Waterpump_capacity_robust, Waterleakage_robust, Cost_robust, catchment_area_robust, flexible=False
+    5000, 50, pop_df, rainfall_cdf_df, Waterpump_capacity_robust, Waterleakage_robust, Cost_robust, catchment_area_robust, cost_catchment_area_increase, cost_waterpump_capacity_increase, operational_cost_waterpump_increase, Wpriv, Wrest, Cpriv, Crest, water_min, water_min_constraint, Env_Cost, flexible=False
 ) # Run Monte Carlo simulation for the robust intervention
 total_costs3, intervention_costs3, env_costs3, unmet_demand_costs3, _, _, _, avg_water_currently3, avg_leakage_stagewise, average_total_costs3 = monte_carlo_total_cost(
-    5000, 50, pop_df, rainfall_cdf_df, Waterpump_capacity_stagewise, Waterleakage_stagewise, Cost_stagewise, catchment_area_stagewise, flexible=False
+    5000, 50, pop_df, rainfall_cdf_df, Waterpump_capacity_stagewise, Waterleakage_stagewise, Cost_stagewise, catchment_area_stagewise, cost_catchment_area_increase, cost_waterpump_capacity_increase, operational_cost_waterpump_increase, Wpriv, Wrest, Cpriv, Crest, water_min, water_min_constraint, Env_Cost, flexible=False
 ) # Run Monte Carlo simulation for the stagewise intervention
 total_costs4, intervention_costs4, env_costs4, unmet_demand_costs4, _, _, _, avg_water_currently4, avg_leakage_flexible, average_total_costs4 = monte_carlo_total_cost(
-    5000, 50, pop_df, rainfall_cdf_df, Waterpump_capacity_flexible, Waterleakage_flexible, Cost_flexible, catchment_area_flexible, flexible=True
-) # Run Monte Carlo simulation for the flexible intervention
-
+    5000, 50, pop_df, rainfall_cdf_df, Waterpump_capacity_flexible, Waterleakage_flexible, Cost_flexible, catchment_area_flexible, cost_catchment_area_increase, cost_waterpump_capacity_increase, operational_cost_waterpump_increase, Wpriv, Wrest, Cpriv, Crest, water_min, water_min_constraint, Env_Cost, flexible=True
+)
 # Generate plots and save to PDF
 with PdfPages('all_interventions_costs.pdf') as pdf:
     # Total Cost cumulative plot
