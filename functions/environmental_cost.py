@@ -1,8 +1,6 @@
-def costenv(current_wateramount):
+def costenv(current_wateramount, water_min, Env_Cost):
     # This function returns the environmental cost of the product
-    water_min = 136800  # ML
-    water_min_constraint = 72000  # ML
-    Env_Cost = 200 # CHF/ML
+
 
 
     if current_wateramount <= water_min:
