@@ -11,6 +11,7 @@ base_dir = os.path.dirname(os.path.abspath(__file__))
 csv_path = os.path.join(base_dir, '..', 'csvs', 'rainfall.csv')  # '..' navigiert eine Ebene nach oben
 csv_path = os.path.abspath(csv_path)  # Wandelt den relativen Pfad in einen absoluten Pfad um
 
+
 # Lade die CSV-Datei
 historical_data = pd.read_csv(csv_path, delimiter=';')
 
@@ -49,6 +50,7 @@ std_dev_forecast = std_dev_per_year * std_dev_rainfall_100yrs  # Unsicherheit ba
 # DataFrame zur Speicherung der kumulativen Wahrscheinlichkeiten erstellen
 rainfall_cdf_df = pd.DataFrame(index=rainfall_range, columns=years_forecast)
 
+mean_rainfall = mean_rainfall_45yrs + mean_rainfall_change * (years_forecast - 1)
 # Kumulative Wahrscheinlichkeiten (CDF) für jede Regenmenge und jedes Prognosejahr berechnen
 for year in years_forecast:
     # Jährliche Veränderung wird auf den Durchschnittswert der letzten 100 Jahre addiert
@@ -63,11 +65,12 @@ for year in years_forecast:
 #rainfall_cdf_df.to_csv('rainfall_cdf_df.csv')
 
 # Darstellung der Ergebnisse als Heatmap
-"""plt.figure(figsize=(12, 8))
+plt.figure(figsize=(12, 8))
 plt.imshow(rainfall_cdf_df, aspect='auto', cmap='viridis', origin='lower',
            extent=[years_forecast.min(), years_forecast.max(), rainfall_range.min(), rainfall_range.max()])
 plt.colorbar(label='Cumulative Probability')
 plt.title('Cumulative Probability of Annual Rainfall Over Next 50 Years')
 plt.xlabel('Year')
 plt.ylabel('Annual Rainfall (mm)')
-plt.show()"""
+plt.plot(years_forecast, mean_rainfall, color='black', label='Mean Population')
+plt.show()

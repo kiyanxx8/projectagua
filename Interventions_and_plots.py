@@ -34,6 +34,9 @@ catchment_increase_flexible = 9250000  # Catchmentarea after flexible interventi
 
 # Define intervention-specific DataFrames 
 # Define intervention-specific DataFrames for water pump capacity
+Waterpump_capacity_fixleakage = pd.DataFrame(waterpumpcapacity_zero, index=[1], columns=np.arange(1, 51))
+Waterpump_capacity_fixleakage.loc[:, 1:] = waterpump_increase_robust #increase to 17500 after year 1
+
 Waterpump_capacity_nothing = pd.DataFrame(waterpumpcapacity_zero, index=[1], columns=np.arange(1, 51))
 
 Waterpump_capacity_robust = pd.DataFrame(waterpumpcapacity_zero, index=[1], columns=np.arange(1, 51))
@@ -47,6 +50,9 @@ Waterpump_capacity_flexible = pd.DataFrame(waterpumpcapacity_zero, index=[1], co
 
 
 # Define DataFrames for catchment area
+catchment_area_fixleakage = pd.DataFrame(catchment_area_zero, index=[1], columns=np.arange(1, 51))
+catchment_area_fixleakage.loc[:, 1:] = catchment_area_new_robust #increase to 13000000 after year 1
+
 catchment_area_nothing = pd.DataFrame(catchment_area_zero, index=[1], columns=np.arange(1, 51))
 
 catchment_area_robust = pd.DataFrame(catchment_area_zero, index=[1], columns=np.arange(1, 51))
@@ -61,6 +67,8 @@ catchment_area_flexible.loc[:, 1:] = catchment_increase_flexible #increase to 92
 
 # Define DataFrames for water leakage
 i = 50  # Number of years
+Waterleakage_fixleakage = pd.DataFrame([[0 + (10 * x) for x in range(i)]], index=[1], columns=np.arange(1, i + 1))
+
 Waterleakage_nothing = pd.DataFrame([[leakage_zero + (10 * x) for x in range(i)]], index=[1], columns=np.arange(1, i + 1))
 
 Waterleakage_robust = Waterleakage_nothing.copy()
@@ -72,7 +80,14 @@ Waterleakage_stagewise = Waterleakage_robust.copy() # Same as robust
 Waterleakage_flexible = Waterleakage_robust.copy() # Same as robust
 
 
-# Define DataFrames for intervention costs
+# Define DataFrames for intervention cost
+Cost_fixleakage = pd.DataFrame(0, index=[1], columns=np.arange(1, 51))
+Cost_fixleakage[1] = (cost_fixing_leakage + 
+                       cost_waterpump_capacity_increase * (waterpump_increase_robust - waterpumpcapacity_zero) + 
+                       cost_catchment_area_increase * (catchment_area_new_robust - catchment_area_zero)) # Cost of robust intervention with leakage, water pump capacity and catchment area increase in year 1
+Cost_fixleakage += operational_cost_waterpump_increase * Waterpump_capacity_robust  # Operational cost of water pump capacity
+
+
 Cost_nothing = pd.DataFrame(0, index=[1], columns=np.arange(1, 51))
 Cost_nothing += operational_cost_waterpump_increase * Waterpump_capacity_nothing # Operational cost of water pump capacity
 
@@ -104,6 +119,9 @@ def calculate_cumulative_distribution(costs_df, discount_rate):
 
 
 # Run Monte Carlo simulations for each intervention
+totalcost0, intervention_costs0, env_costs0, unmet_demand_costs0, avg_rainfall0, avg_population0, avg_total_demand0, avg_water_currently0, avg_leakage_nothing, average_total_costs0 = monte_carlo_total_cost(
+    5000, 50, pop_df, rainfall_cdf_df, Waterpump_capacity_fixleakage, Waterleakage_fixleakage, Cost_fixleakage, catchment_area_nothing, cost_catchment_area_increase, cost_waterpump_capacity_increase, operational_cost_waterpump_increase, Wpriv, Wrest, Cpriv, Crest, water_min, water_min_constraint, Env_Cost, flexible=False) # Run Monte Carlo simulation for the zero-case scenario
+
 total_costs1, nothing_costs1, env_costs1, unmet_demand_costs1, avg_rainfall1, avg_population1, avg_total_demand1, avg_water_currently1, avg_leakage_nothing, average_total_costs1 = monte_carlo_total_cost(
     5000, 50, pop_df, rainfall_cdf_df, Waterpump_capacity_nothing, Waterleakage_nothing, Cost_nothing, catchment_area_nothing, cost_catchment_area_increase, cost_waterpump_capacity_increase, operational_cost_waterpump_increase, Wpriv, Wrest, Cpriv, Crest, water_min, water_min_constraint, Env_Cost, flexible=False
 ) # Run Monte Carlo simulation for the zero-case scenario
@@ -126,6 +144,19 @@ with PdfPages(pdf_filename) as pdf:
     plt.figure(figsize=(10, 6))
     for i, (cost_df, label) in enumerate(zip([total_costs1, total_costs2, total_costs3, total_costs4], 
                                             ['Zero-Case', 'robust', 'Stagewise', 'Flexible'])):
+        sorted_costs, cumulative_probs = calculate_cumulative_distribution(cost_df, discount_rate)
+        plt.plot(sorted_costs, cumulative_probs, label=label)
+    plt.xlabel('Total Discounted Cost')
+    plt.ylabel('Cumulative Probability')
+    plt.title('Cumulative Distribution of Total Discounted Costs for All Interventions')
+    plt.legend()
+    plt.grid(True)
+    pdf.savefig()  # Save the current plot to the PDF
+    plt.close()    # Close the figure
+
+    plt.figure(figsize=(10, 6))
+    for i, (cost_df, label) in enumerate(zip([totalcost0, total_costs1], 
+                                            ['fixleakage', 'Zero-Case'])):
         sorted_costs, cumulative_probs = calculate_cumulative_distribution(cost_df, discount_rate)
         plt.plot(sorted_costs, cumulative_probs, label=label)
     plt.xlabel('Total Discounted Cost')
@@ -231,6 +262,7 @@ with PdfPages(pdf_filename) as pdf:
     plt.title('Average Water Leakage over Years for All Interventions')
     plt.legend()
     plt.grid(True)
+    plt.savefig("totcost_1-3.png", format="png", dpi=300)
     pdf.savefig()  # Save the current plot to the PDF
     plt.close()    # Close the figure
 
@@ -245,6 +277,7 @@ with PdfPages(pdf_filename) as pdf:
     plt.title('Cumulative Distribution of Total Discounted Costs for Selected Interventions')
     plt.legend()
     plt.grid(True)
+    plt.savefig("totcost_1-3.png", format="png", dpi=300)
     pdf.savefig()  # Save the current plot to the PDF
     plt.close()    # Close the figure
 

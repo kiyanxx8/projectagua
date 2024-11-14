@@ -23,6 +23,8 @@ std_dev_pop_growth = std_dev_per_year * growth_per_year * years
 # Create an empty DataFrame to store the results
 pop_df = pd.DataFrame(index=pop_range, columns=years)
 
+
+mean_population = initial_pop + growth_per_year * (years - 1)
 # Loop through each year and calculate the cumulative probability of each population size using a normal distribution
 for year in years:
     mean = initial_pop + growth_per_year * (year - 1)  # Mean population for this year (grows by 800 each year)
@@ -36,11 +38,12 @@ for year in years:
 #pop_df.to_csv('pop_df_cumulative.csv')
 
 # Plotting the results as a heatmap
-"""plt.figure(figsize=(10, 6))
+plt.figure(figsize=(10, 6))
 plt.imshow(pop_df, aspect='auto', cmap='viridis', origin='lower',
            extent=[years.min(), years.max(), pop_range.min(), pop_range.max()])
 plt.colorbar(label='Cumulative Probability')
 plt.title('Cumulative Probability of Population Size Over Time with Variable Uncertainty')
 plt.xlabel('Year')
 plt.ylabel('Population Size')
-plt.show()"""
+plt.plot(years, mean_population, color='black', label='Mean Population')
+plt.show()
