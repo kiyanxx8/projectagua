@@ -136,12 +136,21 @@ def monte_carlo_total_cost(iterations, years, population_df, rainamount_df, wate
 
     # Calculate present value costs for each iteration
     present_value_costs = np.zeros(iterations)
+    present_value_unmet_demand_costs = np.zeros(iterations)
+    present_value_envcosts = np.zeros(iterations)
+    present_value_intervention_costs = np.zeros(iterations)
     for i in range(iterations):
         for year in range(years):
             present_value_costs[i] += total_costs[i, year] / ((1 + discount_rate) ** year)
+            present_value_unmet_demand_costs[i] += unmet_demand_costs[i, year] / ((1 + discount_rate) ** year)
+            present_value_envcosts[i] += env_costs[i, year] / ((1 + discount_rate) ** year)
+            present_value_intervention_costs[i] += intervention_costs[i, year] / ((1 + discount_rate) ** year)
     
     # Average present value cost across all iterations
     average_present_value_cost = present_value_costs.mean()
+    average_present_value_unmet_demand_costs = present_value_unmet_demand_costs.mean()
+    average_present_value_envcosts = present_value_envcosts.mean()
+    average_present_value_intervention_costs = present_value_intervention_costs.mean()
 
     # Create DataFrames for the results
     total_costs_df = pd.DataFrame(total_costs, columns=[f'Year_{y}' for y in range(1, years + 1)])
@@ -159,5 +168,9 @@ def monte_carlo_total_cost(iterations, years, population_df, rainamount_df, wate
         total_demand_yearly.mean(axis=0),
         water_currently_yearly.mean(axis=0),
         leakage_yearly.mean(axis=0),
-        average_present_value_cost  # New return value for average present value of total cost
+        average_present_value_cost,  # New return value for average present value of total cost
+        average_present_value_unmet_demand_costs,
+        average_present_value_envcosts,
+        average_present_value_intervention_costs
+
     )

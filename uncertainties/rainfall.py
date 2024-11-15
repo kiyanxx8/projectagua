@@ -69,8 +69,8 @@ plt.figure(figsize=(12, 8))
 plt.imshow(rainfall_cdf_df, aspect='auto', cmap='viridis', origin='lower',
            extent=[years_forecast.min(), years_forecast.max(), rainfall_range.min(), rainfall_range.max()])
 plt.colorbar(label='Cumulative Probability')
-plt.title('Cumulative Probability of Annual Rainfall Over Next 50 Years')
 plt.xlabel('Year')
 plt.ylabel('Annual Rainfall (mm)')
 plt.plot(years_forecast, mean_rainfall, color='black', label='Mean Population')
-plt.show()
+plt.savefig("Rainfall.png", format="png", dpi=300)
+
