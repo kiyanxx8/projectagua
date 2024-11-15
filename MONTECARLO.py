@@ -104,7 +104,7 @@ def monte_carlo_total_cost(iterations, years, population_df, rainamount_df, wate
             # Apply flexible management strategies if enabled
             if flexible:
                 # Increase catchment area if water reserve is below minimum threshold and catchment area is below 14,000,000 m^2
-                if water_currently2 <= water_min and current_catchment_area.loc[1, year] < 14000000:
+                if water_currently2 <= water_min and current_catchment_area.loc[1, year] < 14000000 and year != 1:
                     current_catchment_area.loc[1, year:] += 500000 # Increase catchment area by 500000 m^2
                     intervention_cost += (current_catchment_area.loc[1, year] - current_catchment_area.loc[1, year - 1]) * cost_catchment_area_increase
                 # Increase water pump capacity if current capacity is below total demand

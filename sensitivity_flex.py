@@ -7,11 +7,11 @@ from TotalDemand import totaldemand
 from inadequate_water_cost import Cwr
 from uncertainties.pop import pop_df
 from uncertainties.rainfall import rainfall_cdf_df
-from Interventions_sensitivity import Waterpump_capacity_stagewise, Waterleakage_stagewise, Cost_stagewise, catchment_area_stagewise
+from Interventions_sensitivity import Waterpump_capacity_flexible, Waterleakage_flexible, Cost_flexible, catchment_area_flexible
 from All_Parameters import water_min, water_min_constraint, Env_Cost, Wpriv, Wrest, Cpriv, Crest, cost_catchment_area_increase, cost_waterpump_capacity_increase, operational_cost_waterpump_increase
-from Interventions_and_plots import cost_fixing_leakage, waterpump_increase_stagewise1, waterpump_increase_stagewise2, waterpumpcapacity_zero, catchment_increase_stagewise1, catchment_increase_stagewise2, catchment_area_zero
+from Interventions_and_plots import cost_fixing_leakage, waterpumpcapacity_zero, catchment_increase_flexible, catchment_area_zero
 
-print(Cost_stagewise)
+print(Cost_flexible)
 # Initial parameters
 parameters = {
     "Private residence Cost per person": 730,  # CHF/person/year for private cost
@@ -22,19 +22,16 @@ parameters = {
     
 }
 
-def calculate_average_cost(params, Cost_stagewise):
+def calculate_average_cost(params, Cost_flexible):
     # Update relevant parameters
     cost_catchment_area_increase = params["Cost Catchment Area increase"]
     cost_waterpump_capacity_increase = params["Cost Waterpumpcapacity increase"]
     operational_cost_waterpump_increase = params["Cost Operational Waterpump increase"]
-    Cost_stagewise2 = Cost_stagewise.copy()
+    Cost_flexible2 = Cost_flexible.copy()
 
 
-    Cost_stagewise2[1] = cost_fixing_leakage + cost_catchment_area_increase * (catchment_increase_stagewise1 - catchment_area_zero)
-    Cost_stagewise2[20] = cost_catchment_area_increase * (catchment_increase_stagewise2 - catchment_increase_stagewise1)
-    Cost_stagewise2[25] = cost_waterpump_capacity_increase * (waterpump_increase_stagewise1 - waterpumpcapacity_zero)
-    Cost_stagewise2[33] = cost_waterpump_capacity_increase * (waterpump_increase_stagewise2 - waterpump_increase_stagewise1)
-    Cost_stagewise2 += operational_cost_waterpump_increase * Waterpump_capacity_stagewise
+    Cost_flexible2 = pd.DataFrame(0, index=[1], columns=np.arange(1, 51))
+    Cost_flexible2[1] = cost_fixing_leakage + cost_catchment_area_increase * (catchment_increase_flexible - catchment_area_zero) # Cost of flexible intervention with leakage and catchment area increase in year 1
 
     Wpriv = params["Demand per person"]
     Cpriv = params["Private residence Cost per person"]
@@ -42,17 +39,15 @@ def calculate_average_cost(params, Cost_stagewise):
     #print(cost_catchment_area_increase)
     # Run Monte Carlo simulation with updated parameters
     total_costs, _, _, _, _, _, _, _, _, average_present_value_cost, _, _, _ = monte_carlo_total_cost(
-        5000, 50, pop_df, rainfall_cdf_df,
-        Waterpump_capacity_stagewise, Waterleakage_stagewise, Cost_stagewise2, catchment_area_stagewise, 
-        cost_catchment_area_increase, cost_waterpump_capacity_increase, operational_cost_waterpump_increase,
-        Wpriv, Wrest, Cpriv, Crest, water_min, water_min_constraint, Env_Cost, flexible=False
-    )
+        5000, 50, pop_df, rainfall_cdf_df, Waterpump_capacity_flexible, Waterleakage_flexible, Cost_flexible, catchment_area_flexible,
+          cost_catchment_area_increase, cost_waterpump_capacity_increase, operational_cost_waterpump_increase,
+            Wpriv, Wrest, Cpriv, Crest, water_min, water_min_constraint, Env_Cost, flexible=True)
     print(average_present_value_cost)
 
     return average_present_value_cost
 
 # Get base cost
-base_cost = calculate_average_cost(parameters, Cost_stagewise)
+base_cost = calculate_average_cost(parameters, Cost_flexible)
 print(f"Base cost: {base_cost}")
 
 # Sensitivity analysis
@@ -63,11 +58,11 @@ for param in parameters:
     
     # Increase parameter by 50%
     parameters[param] = original_value * 1.5
-    increased_cost = calculate_average_cost(parameters, Cost_stagewise)
+    increased_cost = calculate_average_cost(parameters, Cost_flexible)
     print(increased_cost)
     # Decrease parameter by 50%
     parameters[param] = original_value * 0.5
-    decreased_cost = calculate_average_cost(parameters, Cost_stagewise)
+    decreased_cost = calculate_average_cost(parameters, Cost_flexible)
     print(decreased_cost)
     # Restore original value
     parameters[param] = original_value
@@ -109,7 +104,7 @@ def improved_tornado_plot_centered_swap(sensitivity_df):
 
     # Apply fixed x-axis limits between -425M and 425M
     ax.set_xlim(-500e6, 500e6)  # 425 million in scientific notation
-
+    
     # Grid adjustments
     plt.grid(axis='x', linestyle='--', alpha=0.7)
 
@@ -123,7 +118,7 @@ def improved_tornado_plot_centered_swap(sensitivity_df):
     plt.tight_layout(pad=2.0)
 
     # Save the figure in high resolution
-    plt.savefig("Stagewise Analysis.png", format="png", dpi=300, bbox_inches="tight")
+    plt.savefig("Flexible Analysis.png", format="png", dpi=300, bbox_inches="tight")
     plt.show()
     
 # Assuming 'sensitivity_df' is your DataFrame with relevant data

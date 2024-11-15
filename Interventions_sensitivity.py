@@ -103,17 +103,17 @@ def calculate_cumulative_distribution(costs_df, discount_rate):
 
 
 # Run Monte Carlo simulations for each intervention
-total_costs1, nothing_costs1, env_costs1, unmet_demand_costs1, avg_rainfall1, avg_population1, avg_total_demand1, avg_water_currently1, avg_leakage_nothing, average_total_costs1 = monte_carlo_total_cost(
-    10, 50, pop_df, rainfall_cdf_df, Waterpump_capacity_nothing, Waterleakage_nothing, Cost_nothing, catchment_area_nothing, cost_catchment_area_increase, cost_waterpump_capacity_increase, operational_cost_waterpump_increase, Wpriv, Wrest, Cpriv, Crest, water_min, water_min_constraint, Env_Cost, flexible=False
+total_costs1, nothing_costs1, env_costs1, unmet_demand_costs1, avg_rainfall1, avg_population1, avg_total_demand1, avg_water_currently1, avg_leakage_nothing, average_total_costs1, _, _, _ = monte_carlo_total_cost(
+    5000, 50, pop_df, rainfall_cdf_df, Waterpump_capacity_nothing, Waterleakage_nothing, Cost_nothing, catchment_area_nothing, cost_catchment_area_increase, cost_waterpump_capacity_increase, operational_cost_waterpump_increase, Wpriv, Wrest, Cpriv, Crest, water_min, water_min_constraint, Env_Cost, flexible=False
 ) # Run Monte Carlo simulation for the zero-case scenario
-total_costs2, intervention_costs2, env_costs2, unmet_demand_costs2, _, _, _, avg_water_currently2, avg_leakage_robust , average_total_costs2 = monte_carlo_total_cost(
-    10, 50, pop_df, rainfall_cdf_df, Waterpump_capacity_robust, Waterleakage_robust, Cost_robust, catchment_area_robust, cost_catchment_area_increase, cost_waterpump_capacity_increase, operational_cost_waterpump_increase, Wpriv, Wrest, Cpriv, Crest, water_min, water_min_constraint, Env_Cost, flexible=False
+total_costs2, intervention_costs2, env_costs2, unmet_demand_costs2, _, _, _, avg_water_currently2, avg_leakage_robust , average_total_costs2, _, _, _= monte_carlo_total_cost(
+    5000, 50, pop_df, rainfall_cdf_df, Waterpump_capacity_robust, Waterleakage_robust, Cost_robust, catchment_area_robust, cost_catchment_area_increase, cost_waterpump_capacity_increase, operational_cost_waterpump_increase, Wpriv, Wrest, Cpriv, Crest, water_min, water_min_constraint, Env_Cost, flexible=False
 ) # Run Monte Carlo simulation for the robust intervention
-total_costs3, intervention_costs3, env_costs3, unmet_demand_costs3, _, _, _, avg_water_currently3, avg_leakage_stagewise, average_total_costs3 = monte_carlo_total_cost(
-    10, 50, pop_df, rainfall_cdf_df, Waterpump_capacity_stagewise, Waterleakage_stagewise, Cost_stagewise, catchment_area_stagewise, cost_catchment_area_increase, cost_waterpump_capacity_increase, operational_cost_waterpump_increase, Wpriv, Wrest, Cpriv, Crest, water_min, water_min_constraint, Env_Cost, flexible=False
+total_costs3, intervention_costs3, env_costs3, unmet_demand_costs3, _, _, _, avg_water_currently3, avg_leakage_stagewise, average_total_costs3, _, _, _ = monte_carlo_total_cost(
+    5000, 50, pop_df, rainfall_cdf_df, Waterpump_capacity_stagewise, Waterleakage_stagewise, Cost_stagewise, catchment_area_stagewise, cost_catchment_area_increase, cost_waterpump_capacity_increase, operational_cost_waterpump_increase, Wpriv, Wrest, Cpriv, Crest, water_min, water_min_constraint, Env_Cost, flexible=False
 ) # Run Monte Carlo simulation for the stagewise intervention
-total_costs4, intervention_costs4, env_costs4, unmet_demand_costs4, _, _, _, avg_water_currently4, avg_leakage_flexible, average_total_costs4 = monte_carlo_total_cost(
-    10, 50, pop_df, rainfall_cdf_df, Waterpump_capacity_flexible, Waterleakage_flexible, Cost_flexible, catchment_area_flexible, cost_catchment_area_increase, cost_waterpump_capacity_increase, operational_cost_waterpump_increase, Wpriv, Wrest, Cpriv, Crest, water_min, water_min_constraint, Env_Cost, flexible=True
+total_costs4, intervention_costs4, env_costs4, unmet_demand_costs4, _, _, _, avg_water_currently4, avg_leakage_flexible, average_total_costs4, _, _, _ = monte_carlo_total_cost(
+    5000, 50, pop_df, rainfall_cdf_df, Waterpump_capacity_flexible, Waterleakage_flexible, Cost_flexible, catchment_area_flexible, cost_catchment_area_increase, cost_waterpump_capacity_increase, operational_cost_waterpump_increase, Wpriv, Wrest, Cpriv, Crest, water_min, water_min_constraint, Env_Cost, flexible=True
 )
 
 # Generate plots and save to PDF

@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import textwrap
 from MONTECARLO import monte_carlo_total_cost
 from TotalDemand import totaldemand
 from inadequate_water_cost import Cwr
@@ -13,19 +14,19 @@ from Interventions_and_plots import cost_fixing_leakage, waterpump_increase_robu
 print(Cost_robust)
 # Initial parameters
 parameters = {
-    "Cpriv": 730,  # CHF/person/year for private cost
-    "cost_catchment_area_increase": 50,
-    "cost_waterpump_capacity_increase": 100,
-    "operational_cost_waterpump_increase": 5,
-    "Wpriv": 0.089  # ML/person/year for private water use
+    "Private residence Cost per person": 730,  # CHF/person/year for private cost
+    "Cost Catchment Area increase": 50,
+    "Cost Waterpumpcapacity increase": 100,
+    "Cost Operational Waterpump increase": 5,
+    "Demand per person": 0.089  # ML/person/year for private water use
     
 }
 
 def calculate_average_cost(params, Cost_robust):
     # Update relevant parameters
-    cost_catchment_area_increase = params["cost_catchment_area_increase"]
-    cost_waterpump_capacity_increase = params["cost_waterpump_capacity_increase"]
-    operational_cost_waterpump_increase = params["operational_cost_waterpump_increase"]
+    cost_catchment_area_increase = params["Cost Catchment Area increase"]
+    cost_waterpump_capacity_increase = params["Cost Waterpumpcapacity increase"]
+    operational_cost_waterpump_increase = params["Cost Operational Waterpump increase"]
     Cost_robust2 = Cost_robust.copy()
 
 
@@ -33,18 +34,18 @@ def calculate_average_cost(params, Cost_robust):
                        cost_waterpump_capacity_increase * (waterpump_increase_robust - waterpumpcapacity_zero) + 
                        cost_catchment_area_increase * (catchment_area_new_robust - catchment_area_zero))
     Cost_robust2 += operational_cost_waterpump_increase * Waterpump_capacity_robust
-    Wpriv = params["Wpriv"]
-    Cpriv = params["Cpriv"]
+    Wpriv = params["Demand per person"]
+    Cpriv = params["Private residence Cost per person"]
     np.random.seed(42)
-    print(cost_catchment_area_increase)
+    #print(cost_catchment_area_increase)
     # Run Monte Carlo simulation with updated parameters
-    total_costs, _, _, _, _, _, _, _, _, average_present_value_cost = monte_carlo_total_cost(
-        10, 50, pop_df, rainfall_cdf_df,
+    total_costs, _, _, _, _, _, _, _, _, average_present_value_cost, _, _, _ = monte_carlo_total_cost(
+        5000, 50, pop_df, rainfall_cdf_df,
         Waterpump_capacity_robust, Waterleakage_robust, Cost_robust2, catchment_area_robust,
         cost_catchment_area_increase, cost_waterpump_capacity_increase, operational_cost_waterpump_increase,
         Wpriv, Wrest, Cpriv, Crest, water_min, water_min_constraint, Env_Cost, flexible=False
     )
-    print(average_present_value_cost)
+    #print(average_present_value_cost)
 
     return average_present_value_cost
 
@@ -61,11 +62,11 @@ for param in parameters:
     # Increase parameter by 50%
     parameters[param] = original_value * 1.5
     increased_cost = calculate_average_cost(parameters, Cost_robust)
-    print(increased_cost)
+    #print(increased_cost)
     # Decrease parameter by 50%
     parameters[param] = original_value * 0.5
     decreased_cost = calculate_average_cost(parameters, Cost_robust)
-    print(decreased_cost)
+    #print(decreased_cost)
     # Restore original value
     parameters[param] = original_value
     
@@ -80,13 +81,51 @@ sensitivity_df = pd.DataFrame(sensitivity_results).T
 sensitivity_df.columns = ["Cost Increase (50%)", "Cost Decrease (50%)"]
 print(sensitivity_df)
 
-# Plot a Tornado Diagram
-plt.figure(figsize=(10, 6))
-sensitivity_df.sort_values(by="Cost Increase (50%)", inplace=True)  # Sort by effect size
-sensitivity_df.plot(kind='barh', color=['red', 'green'], alpha=0.7, edgecolor='black')
-plt.title('Tornado Diagram of Sensitivity Analysis')
-plt.xlabel('Change in Average Cost')
-plt.ylabel('Parameter')
-plt.grid(axis='x')
-plt.show()
+def improved_tornado_plot_centered_swap(sensitivity_df):
+    # Calculate the max absolute value across both increase and decrease columns for dynamic scaling
+    max_value = sensitivity_df[['Cost Increase (50%)', 'Cost Decrease (50%)']].abs().max().max()
+    x_min, x_max = -1.1 * max_value, 1.1 * max_value
 
+    # Wrap long labels to fit in two lines
+    sensitivity_df.index = [textwrap.fill(label, width=20) for label in sensitivity_df.index]
+    
+    # Calculate the absolute impact by adding the absolute values of both columns
+    sensitivity_df['Abs Impact'] = sensitivity_df['Cost Increase (50%)'].abs() + sensitivity_df['Cost Decrease (50%)'].abs()
+    
+    # Sort by absolute impact in descending order for tornado effect
+    sensitivity_df.sort_values(by='Abs Impact', ascending=True, inplace=True)
+    sensitivity_df.drop(columns=['Abs Impact'], inplace=True)
+
+    # Plot tornado diagram with specified figure size
+    ax = sensitivity_df.plot(kind='barh', figsize=(12, 8), color=['red', 'blue'], alpha=0.7, edgecolor='black', width=0.8)
+
+    # Title and labels
+    plt.title('', fontsize=18, weight='bold', pad=20)
+    # plt.suptitle('The Robust Intervention', fontsize=16, style='italic', y=1.05)
+    plt.xlabel('Change in Average Cost', fontsize=14, labelpad=15)
+    plt.ylabel('Parameter', fontsize=14) 
+
+    # Apply fixed x-axis limits between -425M and 425M
+    ax.set_xlim(-500e6, 500e6)  # 425 million in scientific notation
+
+    # Left-align y-axis tick labels
+    #ax.set_yticklabels(ax.get_yticklabels(), ha='left')
+
+    # Grid adjustments
+    plt.grid(axis='x', linestyle='--', alpha=0.7)
+
+    # Move legend inside the plot area
+    ax.legend(loc='lower right', frameon=True, framealpha=0.9, title='Sensitivity', fontsize=12)
+
+    # Simplify x-axis number formatting for readability
+    ax.xaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x / 1e6:.0f}M'))
+
+    # Adjust layout to center plot and make it balanced
+    plt.tight_layout(pad=2.0)
+
+    # Save the figure in high resolution
+    plt.savefig("Robust Analysis.png", format="png", dpi=300, bbox_inches="tight")
+    plt.show()
+    
+# Assuming 'sensitivity_df' is your DataFrame with relevant data
+improved_tornado_plot_centered_swap(sensitivity_df)

@@ -65,12 +65,12 @@ for year in years_forecast:
 #rainfall_cdf_df.to_csv('rainfall_cdf_df.csv')
 
 # Darstellung der Ergebnisse als Heatmap
-plt.figure(figsize=(12, 8))
+"""plt.figure(figsize=(12, 8))
 plt.imshow(rainfall_cdf_df, aspect='auto', cmap='viridis', origin='lower',
            extent=[years_forecast.min(), years_forecast.max(), rainfall_range.min(), rainfall_range.max()])
 plt.colorbar(label='Cumulative Probability')
 plt.xlabel('Year')
 plt.ylabel('Annual Rainfall (mm)')
 plt.plot(years_forecast, mean_rainfall, color='black', label='Mean Population')
-plt.savefig("Rainfall.png", format="png", dpi=300)
+plt.savefig("Rainfall.png", format="png", dpi=300)"""
 
