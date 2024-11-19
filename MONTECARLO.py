@@ -168,7 +168,7 @@ def monte_carlo_total_cost(iterations, years, population_df, rainamount_df, wate
         total_demand_yearly.mean(axis=0),
         water_currently_yearly.mean(axis=0),
         leakage_yearly.mean(axis=0),
-        average_present_value_cost,  # New return value for average present value of total cost
+        average_present_value_cost,  
         average_present_value_unmet_demand_costs,
         average_present_value_envcosts,
         average_present_value_intervention_costs
