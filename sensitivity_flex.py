@@ -36,7 +36,6 @@ def calculate_average_cost(params, Cost_flexible):
     Wpriv = params["Demand per person"]
     Cpriv = params["Private residence Cost per person"]
     np.random.seed(42)
-    #print(cost_catchment_area_increase)
     # Run Monte Carlo simulation with updated parameters
     total_costs, _, _, _, _, _, _, _, _, average_present_value_cost, _, _, _ = monte_carlo_total_cost(
         5000, 50, pop_df, rainfall_cdf_df, Waterpump_capacity_flexible, Waterleakage_flexible, Cost_flexible, catchment_area_flexible,

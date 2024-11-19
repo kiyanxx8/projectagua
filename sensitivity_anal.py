@@ -37,7 +37,6 @@ def calculate_average_cost(params, Cost_robust):
     Wpriv = params["Demand per person"]
     Cpriv = params["Private residence Cost per person"]
     np.random.seed(42)
-    #print(cost_catchment_area_increase)
     # Run Monte Carlo simulation with updated parameters
     total_costs, _, _, _, _, _, _, _, _, average_present_value_cost, _, _, _ = monte_carlo_total_cost(
         5000, 50, pop_df, rainfall_cdf_df,
@@ -79,7 +78,6 @@ for param in parameters:
 # Create a DataFrame for results
 sensitivity_df = pd.DataFrame(sensitivity_results).T
 sensitivity_df.columns = ["Cost Increase (50%)", "Cost Decrease (50%)"]
-print(sensitivity_df)
 
 def improved_tornado_plot_centered_swap(sensitivity_df):
     # Calculate the max absolute value across both increase and decrease columns for dynamic scaling
@@ -107,9 +105,6 @@ def improved_tornado_plot_centered_swap(sensitivity_df):
 
     # Apply fixed x-axis limits between -425M and 425M
     ax.set_xlim(-500e6, 500e6)  # 425 million in scientific notation
-
-    # Left-align y-axis tick labels
-    #ax.set_yticklabels(ax.get_yticklabels(), ha='left')
 
     # Grid adjustments
     plt.grid(axis='x', linestyle='--', alpha=0.7)
